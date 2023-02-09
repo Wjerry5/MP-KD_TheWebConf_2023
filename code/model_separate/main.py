@@ -12,6 +12,8 @@ import logging
 import json
 
 def training(args, model, data, language = "target"):
+
+
     logging.info('training model...')
     if args.use_cuda:
         model.cuda()
@@ -20,6 +22,14 @@ def training(args, model, data, language = "target"):
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.00001)
 
     num_epoch = args.n_epoch
+
+    # load data:
+    # data.target_train_data: training data in target language;
+    # data.target_val_data: validation data in target language;
+    # data.target_int_data: masked training data in target language;
+    # data.target_ext_data: testing data in target language;
+    # data.source_train_data: training data in source language;
+
     if language == "target":
         train_data = data.target_train_data
         valid_data = data.target_val_data
@@ -89,8 +99,10 @@ def log_result(args, model):
 
 if __name__ == "__main__":
 
+    # import hyper-parameters:
     args = parse_args()
 
+    # set the random seed to control sampling and initialization:
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
 
@@ -101,10 +113,14 @@ if __name__ == "__main__":
     if args.use_cuda:
         torch.cuda.set_device(args.device)
 
+    # prepare and load source and target data respectively:
     data = Dataloader(args)
+
+    # initialize model:
     model = Model(args, data.target_ngh_finder, data.target_ent_num, len(data.data["target_train"]), data.data["target_ent_embedding"], data.data["rel_embedding"])
+    
     if args.load_model:
-        logging.info("---------------------Loading Model---------------------")
+        logging.info("---------------------Testing Model---------------------")
         testing(args, model, data)
     else: 
         logging.info("---------------------Training Model---------------------")

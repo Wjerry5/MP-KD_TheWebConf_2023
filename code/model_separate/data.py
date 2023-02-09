@@ -17,6 +17,17 @@ class Dataloader:
         self.load_data()
 
     def load_data(self):
+
+        # load data:
+        # data.target_train_data: training data in target language;
+        # data.target_val_data: validation data in target language;
+        # data.target_int_data: masked training data in target language;
+        # data.target_ext_data: testing data in target language;
+        # data.source_train_data: training data in source language;
+        # data.alignment_train_data: available alignment data during training;
+        # data.source_ent_num: total entity amount on source language;
+        # data.target_ent_num: total entity amoung on target language;
+
         data_files = ["source.csv", "target_train.csv", "target_val.csv", "target_int.csv", "target_ext.csv", "alignment_train.csv", "alignment_test.csv"]
         feat_files = ["ent_embedding.npy", "rel_embedding.npy"]
         self.data = {"source": None, "target_train": None, "target_val": None, "target_int": None, "target_ext": None, "alignment_train": None, "alignment_test": None, 
@@ -48,7 +59,7 @@ class Dataloader:
         self.target_val_data = self.test_data_KG("target_val")
         self.target_int_data = self.test_data_KG("target_int")
         self.target_ext_data = self.test_data_KG("target_ext")
-        # self.alignment_train_data = self.train_data_alignment("alignment_train")
+        self.alignment_train_data = self.train_data_alignment("alignment_train")
         # self.alignment_test_data = self.test_data_alignment("alignment_test")
 
     def train_data_KG(self, language):
@@ -61,6 +72,8 @@ class Dataloader:
         elif language == "target":
             data = self.data["target_train"]
             node_set = set(range(self.target_ent_num))
+
+        # construct positive and negative samples for model training:
 
         if self.args.load_old_data and os.path.exists(os.path.join(self.args.data_dir, self.args.data_name, self.task, "train_data_{}.npy".format(language))):
             train_data = np.load(os.path.join(self.args.data_dir, self.args.data_name, self.task, "train_data_{}.npy".format(language)), allow_pickle=True)
@@ -78,6 +91,8 @@ class Dataloader:
                 node2hist[dst].append((src, dst, rel, ts))
 
             pos_all, neg_all = [], []
+            
+            # the negative sampling is performed per each entity;
             for node in node2hist:
 
                 pos =  np.array(sorted(node2hist[node], key=lambda x: x[3]))
@@ -97,6 +112,7 @@ class Dataloader:
 
         train_data = list(zip(train_pos, train_neg))
         
+        # construct the neighbor finder for the representation module to integrate neighbor information:
         max_idx = max(node_set)
 
         adj_list = [[] for _ in range(max_idx + 1)]

@@ -15,6 +15,14 @@ class Evaluation:
 
     def evaluate(self, val_data, test_data, ent_embedding, rel_embedding, hit_at_k = [1, 3, 10], mode = "ext"):
         
+        # val_data: validation data in target language;
+        # test_data: testing data in test language;
+        # ent_embbedding: temporal entity embedding;
+        # rel_embedding: relation embedding;
+        # mode:
+            # ext: testing data in the future time steps;
+            # int: testing masked data in the training time steps;
+            
         if mode == "int":
             test_metrics = self.calc_metric(test_data, ent_embedding, rel_embedding, hit_at_k, mode = "int")
             self.best_int_metric = test_metrics

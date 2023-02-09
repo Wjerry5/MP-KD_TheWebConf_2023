@@ -43,16 +43,16 @@ class TGAT_Encoder(torch.nn.Module):
         self.args = args
         self.device = args.device
         self.num_layers = args.num_layers
-        self.ngh_finder = ngh_finder
-        self.attn_mode = args.attn_mode
-        self.use_time = args.use_time
-        self.agg_method = args.agg_method
-        self.n_head = args.n_head
-        self.drop_out = args.drop_out
-        self.emb_dim = args.emb_dim
-        self.time_dim = args.time_dim
-        self.node_num = node_num
-        self.edge_num = edge_num
+        self.ngh_finder = ngh_finder # sample neighbors for entities;
+        self.attn_mode = args.attn_mode # choose attntion functions;
+        self.use_time = args.use_time # whether utilize time information;
+        self.agg_method = args.agg_method # choose aggregation functions in the encoder;
+        self.n_head = args.n_head # number of attention head;
+        self.drop_out = args.drop_out # drop out rate;
+        self.emb_dim = args.emb_dim # dimension of entity/relation embedding;
+        self.time_dim = args.time_dim # dimention of time embedding;
+        self.node_num = node_num # number of entities;
+        self.edge_num = edge_num # number of edges;
         self.pretrained = args.use_pretrain
         self.test_batch = args.test_batch
         self.logger = logging.getLogger(__name__)
@@ -292,6 +292,7 @@ class AttnModel(torch.nn.Module):
 
     def __init__(self, feat_dim, edge_dim, time_dim,
                  attn_mode='multi', n_head=2, drop_out=0.1):
+        
         """
         args:
           feat_dim: dim for the node features
@@ -301,6 +302,7 @@ class AttnModel(torch.nn.Module):
           n_head: number of heads in attention
           drop_out: probability of dropping a neural.
         """
+
         super(AttnModel, self).__init__()
 
         self.feat_dim = feat_dim
@@ -331,6 +333,7 @@ class AttnModel(torch.nn.Module):
             raise ValueError('attn_mode can only be multi or simple')
 
     def forward(self, src, src_t, seq, seq_t, seq_e, mask, vars_dict):
+        
         """"Attention based temporal attention forward pass
         args:
           src: float Tensor of shape [B, D]

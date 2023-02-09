@@ -12,6 +12,7 @@ class Model(torch.nn.Module):
         self.use_cuda = args.use_cuda
         self.device = torch.device(args.device if args.use_cuda else "cpu")
 
+        # the encoder to represent each entity at different time:
         self.emb_encoder = TGAT_Encoder(args, ngh_finder, node_num, edge_num, n_feat, e_feat)
 
         self.num_neighbors = args.num_neighbors
@@ -21,14 +22,25 @@ class Model(torch.nn.Module):
 
     def forward(self, train_pos, train_neg):
         
+        # parameters:
+        # training_pos: positive samples including temporal triples;
+        # training_neg: negative samples including corrupted triplets;
+
         try:
             all_samples = np.concatenate([np.array(train_pos).astype(int), np.array(train_neg).astype(int)], axis = 0)
         except:
             print(np.array(train_pos).shape, np.array(train_neg).shape)
+
         src_idx_l = all_samples.transpose()[0]
         target_idx_l = all_samples.transpose()[1]
         rel_idx_l = all_samples.transpose()[2]
         cut_time_l = all_samples.transpose()[3]
+
+        # src_idx_l: current entity id;
+        # target_idx_l: neighbor entity id;
+        # rel_idx_l: relation id;
+        # cut_time_l: current time;
+        # self.num_neighbors: number of integrated neighbors, controled by hyper-parameter;
 
         src_embed, target_embed, rel_embed = self.emb_encoder(src_idx_l, target_idx_l, rel_idx_l, cut_time_l, self.num_neighbors)
         kg_loss = self.kg_loss(src_embed, target_embed, rel_embed)
@@ -39,6 +51,8 @@ class Model(torch.nn.Module):
     def kg_loss(self, head_emb, tail_emb, rel_emb):
         len_positive_triplets = int(len(head_emb) / (self.args.neg_factor + 1))
         
+        # TransE loss and DistMult loss:
+
         if self.args.score_function == 'TransE':
 
             score = head_emb + rel_emb - tail_emb
@@ -71,6 +85,8 @@ class Model(torch.nn.Module):
         return val_metrics, test_metrics, model_save
 
     def update_embeddings(self, mode):
+        # update temporal embeddings before evaluation:
+        
         self.emb_encoder.eval()
         ent_embedding, rel_embedding = self.emb_encoder.update_embeddings(self.num_neighbors, mode = mode)
         return ent_embedding, rel_embedding

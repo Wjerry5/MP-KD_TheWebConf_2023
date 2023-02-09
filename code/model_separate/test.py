@@ -48,27 +48,6 @@ if __name__ == "__main__":
     data = Dataloader(args)
     evaluate(args, data)
 
-    # print(datetime.datetime.now())
-    # testing(model, test_data, args, val_time, test_time)
-    # print(datetime.datetime.now())
-    # print(datetime.datetime.now())
-    # node_idx_batch, edge_index_batch, edge_time_batch, node_idx_new = full_ngh_finder.get_k_hop_neighbor(range(64), [1000000] * 64)
-    # print(datetime.datetime.now())
-    # print(len(node_idx_batch))
-    # print(edge_index_batch)
-    # print(len(edge_time_batch))
-    # print(len(node_idx_new))
-    # 
-
-    # n, dim = 100, 128
-    # node_feat = torch.Tensor(n, dim)
-    # edge_feat = torch.Tensor(5, dim)
-    # edge_index = torch.Tensor([[1,5,99,2, 2],[3,87,44,66,99]]).long()
-    # edge_time = torch.Tensor([1,5,6,9,10])
-    # t = 1
-    # temporalGrpahAttn = TemporalGraphAttn(args)
-    # out = temporalGrpahAttn.forward(node_feat, edge_feat, edge_index, edge_time, t)
-
 
 
     

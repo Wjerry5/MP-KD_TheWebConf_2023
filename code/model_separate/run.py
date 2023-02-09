@@ -10,6 +10,8 @@ import random
 # warnings.filterwarnings('ignore')
 
 # This is the script to run the MP-KD model in parallel;
+# It runs MP-KD on all tasks in the dataset folder;
+# Tune $parellel to control the degree of parallel according to your hardware load.
 
 data_name = 'wiki'
 script = "main.py"
